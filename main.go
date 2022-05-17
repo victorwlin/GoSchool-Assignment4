@@ -9,6 +9,8 @@ import (
 	"GoSchool-Assignment4/friend"
 	"GoSchool-Assignment4/search"
 	"GoSchool-Assignment4/userp"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -18,26 +20,30 @@ func main() {
 		}
 	}()
 
-	http.Handle("/favicon.ico", http.NotFoundHandler())
+	r := mux.NewRouter()
 
-	http.HandleFunc("/", userp.Login)
-	http.HandleFunc("/signup/", userp.Signup)
+	r.Handle("/favicon.ico", http.NotFoundHandler())
 
-	http.HandleFunc("/friends/", friend.FriendsControl)
-	http.HandleFunc("/addfriend/", friend.AddFriendToList)
-	http.HandleFunc("/addgroup/", friend.AddGroup)
-	http.HandleFunc("/editgroup/", friend.EditExistingGroup)
-	http.HandleFunc("/deletegroup/", friend.DeleteGroup)
+	r.HandleFunc("/", userp.Login)
+	r.HandleFunc("/signup/", userp.Signup)
 
-	http.HandleFunc("/accountmanagement/", account.AccountManagement)
-	http.HandleFunc("/edituser/", account.EditUser)
-	http.HandleFunc("/deleteuser/", account.DeleteUser)
+	r.HandleFunc("/friends/", friend.FriendsControl)
+	r.HandleFunc("/addfriend/", friend.AddFriendToList)
+	r.HandleFunc("/addgroup/", friend.AddGroup)
+	r.HandleFunc("/editgroup/", friend.EditExistingGroup)
+	r.HandleFunc("/deletegroup/", friend.DeleteGroup)
 
-	http.HandleFunc("/search/", search.SearchControl)
-	http.HandleFunc("/deletefriend/", search.DeleteFriend)
-	http.HandleFunc("/editfrienddetails/", search.EditFriendDetails)
+	r.HandleFunc("/accountmanagement/", account.AccountManagement)
+	r.HandleFunc("/edituser/", account.EditUser)
+	r.HandleFunc("/deleteuser/", account.DeleteUser)
 
-	http.HandleFunc("/logout/", userp.Logout)
+	r.HandleFunc("/search/", search.SearchControl)
+	r.HandleFunc("/deletefriend/", search.DeleteFriend)
+	r.HandleFunc("/editfrienddetails/", search.EditFriendDetails)
+
+	r.HandleFunc("/logout/", userp.Logout)
+
+	http.Handle("/", r)
 
 	http.ListenAndServe(":5221", nil)
 }

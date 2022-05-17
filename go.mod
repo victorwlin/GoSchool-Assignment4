@@ -3,6 +3,7 @@ module GoSchool-Assignment4
 go 1.18
 
 require (
+	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.4.0
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
