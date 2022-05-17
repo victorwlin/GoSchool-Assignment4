@@ -45,5 +45,6 @@ func main() {
 
 	http.Handle("/", r)
 
-	http.ListenAndServe(":5221", nil)
+	// http.ListenAndServe(":5221", nil)
+	http.ListenAndServeTLS(":5221", "cert.pem", "key.pem", nil)
 }
