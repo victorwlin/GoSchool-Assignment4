@@ -1,19 +1,22 @@
-package main
+package account
 
 import (
+	"GoSchool-Assignment4/data"
+	"GoSchool-Assignment4/userp"
 	"fmt"
 	"net/http"
 )
 
-func editUser(res http.ResponseWriter, req *http.Request) {
-	if !alreadyLoggedIn(req) {
+// EditUser allows the user to edit their username.
+func EditUser(res http.ResponseWriter, req *http.Request) {
+	if !userp.AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
 
-	user := getUser(res, req)
+	user := userp.GetUser(res, req)
 
-	oldName := user.profileName
+	oldName := user.ProfileName
 
 	if req.Method == http.MethodPost {
 		username := req.FormValue("username")
@@ -27,7 +30,7 @@ func editUser(res http.ResponseWriter, req *http.Request) {
 
 			// check if username exists
 			exists := false
-			for k := range users {
+			for k := range data.Users {
 				if k == username {
 					exists = true
 				}
@@ -35,17 +38,17 @@ func editUser(res http.ResponseWriter, req *http.Request) {
 
 			if !exists {
 				// new entry into users map
-				users[username] = &(*(users[user.profileName]))
-				fmt.Println(users)
+				data.Users[username] = &(*(data.Users[user.ProfileName]))
+				fmt.Println(data.Users)
 				// change profileName
-				users[username].profileName = username
+				data.Users[username].ProfileName = username
 
 				// update mapSessions
 				cookie, _ := req.Cookie("FriendTrackerCookie")
-				mapSessions[cookie.Value] = username
+				data.MapSessions[cookie.Value] = username
 
 				// delete old userProfile
-				delete(users, oldName)
+				delete(data.Users, oldName)
 
 				http.Redirect(res, req, "/accountmanagement/", http.StatusSeeOther)
 
@@ -57,20 +60,21 @@ func editUser(res http.ResponseWriter, req *http.Request) {
 
 	}
 
-	tpl.ExecuteTemplate(res, "edituser.gohtml", nil)
+	data.Tpl.ExecuteTemplate(res, "edituser.gohtml", nil)
 }
 
-func deleteUser(res http.ResponseWriter, req *http.Request) {
-	if !alreadyLoggedIn(req) {
+// DeleteUser allows the user to delete their profile and returns them to the login page.
+func DeleteUser(res http.ResponseWriter, req *http.Request) {
+	if !userp.AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
 
-	user := getUser(res, req)
+	user := userp.GetUser(res, req)
 
-	oldName := user.profileName
+	oldName := user.ProfileName
 
-	delete(users, oldName)
+	delete(data.Users, oldName)
 
 	http.Redirect(res, req, "/logout/", http.StatusSeeOther)
 }

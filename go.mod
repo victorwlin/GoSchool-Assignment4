@@ -1,4 +1,4 @@
-module GoSchool-Assignment3
+module GoSchool-Assignment4
 
 go 1.18
 

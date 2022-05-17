@@ -1,15 +1,19 @@
-package main
+// Package userp allows the user to log in or sign in and handles all aspects of account management.
+package userp
 
 import (
 	"net/http"
 	"strings"
 
+	"GoSchool-Assignment4/data"
+
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func login(res http.ResponseWriter, req *http.Request) {
-	if alreadyLoggedIn(req) {
+// Login allows the user to log in.
+func Login(res http.ResponseWriter, req *http.Request) {
+	if AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 		return
 	}
@@ -23,14 +27,14 @@ func login(res http.ResponseWriter, req *http.Request) {
 		username = strings.ToLower(username)
 
 		// check if user exists using entered username
-		user, ok := users[username]
+		user, ok := data.Users[username]
 		if !ok {
 			http.Error(res, "User does not exist.", http.StatusUnauthorized)
 			return
 		}
 
 		// check if password matches our records
-		err := bcrypt.CompareHashAndPassword(user.password, []byte(password))
+		err := bcrypt.CompareHashAndPassword(user.Password, []byte(password))
 		if err != nil {
 			http.Error(res, "Username and password do not match.", http.StatusForbidden)
 			return
@@ -46,17 +50,18 @@ func login(res http.ResponseWriter, req *http.Request) {
 		}
 		http.SetCookie(res, cookie)
 
-		mapSessions[cookie.Value] = username
+		data.MapSessions[cookie.Value] = username
 
 		http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 		return
 	}
 
-	tpl.ExecuteTemplate(res, "login.gohtml", nil)
+	data.Tpl.ExecuteTemplate(res, "login.gohtml", nil)
 }
 
-func signup(res http.ResponseWriter, req *http.Request) {
-	if alreadyLoggedIn(req) {
+// Signup allows the user to sign up and create a new user profile.
+func Signup(res http.ResponseWriter, req *http.Request) {
+	if AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 		return
 	}
@@ -80,7 +85,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 			username = strings.ToLower(username)
 
 			// check if username already exists
-			if _, ok := users[username]; ok {
+			if _, ok := data.Users[username]; ok {
 				http.Error(res, "Username already taken.", http.StatusForbidden)
 				return
 			}
@@ -95,7 +100,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 			}
 			http.SetCookie(res, cookie)
 
-			mapSessions[cookie.Value] = username
+			data.MapSessions[cookie.Value] = username
 
 			// create password
 			pw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
@@ -105,11 +110,11 @@ func signup(res http.ResponseWriter, req *http.Request) {
 			}
 
 			// create user profile
-			users[username] = &userProfile{
-				profileName: username,
-				password:    pw,
-				groups:      []string{},
-				friends:     &friendList{nil, 0},
+			data.Users[username] = &data.UserProfile{
+				ProfileName: username,
+				Password:    pw,
+				Groups:      []string{},
+				Friends:     &data.FriendList{nil, 0},
 			}
 
 			http.Redirect(res, req, "/friends/", http.StatusSeeOther)
@@ -117,5 +122,5 @@ func signup(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	tpl.ExecuteTemplate(res, "signup.gohtml", nil)
+	data.Tpl.ExecuteTemplate(res, "signup.gohtml", nil)
 }

@@ -1,27 +1,15 @@
+// Package main starts the server and handles routing.
 package main
 
 import (
 	"fmt"
-	"html/template"
-	"log"
 	"net/http"
-	"os"
+
+	"GoSchool-Assignment4/account"
+	"GoSchool-Assignment4/friend"
+	"GoSchool-Assignment4/search"
+	"GoSchool-Assignment4/userp"
 )
-
-var (
-	tpl         *template.Template
-	mapSessions = map[string]string{}
-
-	Info  *log.Logger
-	Error *log.Logger
-)
-
-func init() {
-	Info = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	Error = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Lmicroseconds|log.Llongfile)
-
-	tpl = template.Must(template.ParseGlob("templates/*"))
-}
 
 func main() {
 	defer func() {
@@ -32,24 +20,24 @@ func main() {
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 
-	http.HandleFunc("/", login)
-	http.HandleFunc("/signup/", signup)
+	http.HandleFunc("/", userp.Login)
+	http.HandleFunc("/signup/", userp.Signup)
 
-	http.HandleFunc("/friends/", friendsControl)
-	http.HandleFunc("/addfriend/", addFriendToList)
-	http.HandleFunc("/addgroup/", addGroup)
-	http.HandleFunc("/editgroup/", editExistingGroup)
-	http.HandleFunc("/deletegroup/", deleteGroup)
+	http.HandleFunc("/friends/", friend.FriendsControl)
+	http.HandleFunc("/addfriend/", friend.AddFriendToList)
+	http.HandleFunc("/addgroup/", friend.AddGroup)
+	http.HandleFunc("/editgroup/", friend.EditExistingGroup)
+	http.HandleFunc("/deletegroup/", friend.DeleteGroup)
 
-	http.HandleFunc("/accountmanagement/", accountManagement)
-	http.HandleFunc("/edituser/", editUser)
-	http.HandleFunc("/deleteuser/", deleteUser)
+	http.HandleFunc("/accountmanagement/", account.AccountManagement)
+	http.HandleFunc("/edituser/", account.EditUser)
+	http.HandleFunc("/deleteuser/", account.DeleteUser)
 
-	http.HandleFunc("/search/", searchControl)
-	http.HandleFunc("/deletefriend/", deleteFriend)
-	http.HandleFunc("/editfrienddetails/", editFriendDetails)
+	http.HandleFunc("/search/", search.SearchControl)
+	http.HandleFunc("/deletefriend/", search.DeleteFriend)
+	http.HandleFunc("/editfrienddetails/", search.EditFriendDetails)
 
-	http.HandleFunc("/logout/", logout)
+	http.HandleFunc("/logout/", userp.Logout)
 
 	http.ListenAndServe(":5221", nil)
 }

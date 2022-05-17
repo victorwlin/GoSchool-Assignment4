@@ -1,6 +1,8 @@
-package main
+package friend
 
 import (
+	"GoSchool-Assignment4/data"
+	"GoSchool-Assignment4/userp"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -8,13 +10,14 @@ import (
 	"time"
 )
 
-func addFriendToList(res http.ResponseWriter, req *http.Request) {
-	if !alreadyLoggedIn(req) {
+// AddFriendToList adds a friend to the current friend list.
+func AddFriendToList(res http.ResponseWriter, req *http.Request) {
+	if !userp.AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
 
-	user := getUser(res, req)
+	user := userp.GetUser(res, req)
 
 	if req.Method == http.MethodPost {
 		friendname := req.FormValue("friendname")
@@ -31,7 +34,7 @@ func addFriendToList(res http.ResponseWriter, req *http.Request) {
 		} else {
 
 			// check if friend exists
-			if user.friends.doesFriendExist(friendname) {
+			if user.Friends.DoesFriendExist(friendname) {
 				http.Error(res, "Friend already exists.", http.StatusUnauthorized)
 				return
 			}
@@ -40,23 +43,24 @@ func addFriendToList(res http.ResponseWriter, req *http.Request) {
 			desiredfreqInt, _ := strconv.Atoi(desiredfreq)
 			date, _ := time.Parse("2006-01-02", lastcontact)
 
-			user.friends.addFriend(friendname, group, &stack{&dateNode{date, nil}, 0}, desiredfreqInt)
+			user.Friends.AddFriend(friendname, group, &data.Stack{&data.DateNode{date, nil}, 0}, desiredfreqInt)
 
 			http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 
 		}
 	}
 
-	tpl.ExecuteTemplate(res, "addfriend.gohtml", user.groups)
+	data.Tpl.ExecuteTemplate(res, "addfriend.gohtml", user.Groups)
 }
 
-func addGroup(res http.ResponseWriter, req *http.Request) {
-	if !alreadyLoggedIn(req) {
+// AddGroup allows the user to add a group to the group slice of the current user.
+func AddGroup(res http.ResponseWriter, req *http.Request) {
+	if !userp.AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
 
-	user := getUser(res, req)
+	user := userp.GetUser(res, req)
 
 	if req.Method == http.MethodPost {
 		group := req.FormValue("group")
@@ -70,14 +74,14 @@ func addGroup(res http.ResponseWriter, req *http.Request) {
 
 			// check if group exists
 			exists := false
-			for _, v := range user.groups {
+			for _, v := range user.Groups {
 				if v == group {
 					exists = true
 				}
 			}
 
 			if !exists {
-				user.groups = append(user.groups, group)
+				user.Groups = append(user.Groups, group)
 
 				http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 
@@ -89,11 +93,12 @@ func addGroup(res http.ResponseWriter, req *http.Request) {
 
 	}
 
-	tpl.ExecuteTemplate(res, "addgroup.gohtml", nil)
+	data.Tpl.ExecuteTemplate(res, "addgroup.gohtml", nil)
 }
 
-func editExistingGroup(res http.ResponseWriter, req *http.Request) {
-	user := getUser(res, req)
+// EditExistingGroup allows the user to edit an existing group.
+func EditExistingGroup(res http.ResponseWriter, req *http.Request) {
+	user := userp.GetUser(res, req)
 
 	if req.Method == http.MethodPost {
 		group := req.FormValue("group")
@@ -114,16 +119,16 @@ func editExistingGroup(res http.ResponseWriter, req *http.Request) {
 			go func() {
 				defer wg.Done()
 
-				currentFriend := user.friends.head
+				currentFriend := user.Friends.Head
 				for {
 					if currentFriend.Group == group {
 						currentFriend.Group = newgroup
 					}
 
-					if currentFriend.next == nil {
+					if currentFriend.Next == nil {
 						break
 					} else {
-						currentFriend = currentFriend.next
+						currentFriend = currentFriend.Next
 					}
 				}
 			}()
@@ -132,9 +137,9 @@ func editExistingGroup(res http.ResponseWriter, req *http.Request) {
 			go func() {
 				defer wg.Done()
 
-				for i, v := range user.groups {
+				for i, v := range user.Groups {
 					if v == group {
-						user.groups[i] = newgroup
+						user.Groups[i] = newgroup
 					}
 				}
 			}()
@@ -145,17 +150,18 @@ func editExistingGroup(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	tpl.ExecuteTemplate(res, "editgroup.gohtml", user.groups)
+	data.Tpl.ExecuteTemplate(res, "editgroup.gohtml", user.Groups)
 
 }
 
-func deleteGroup(res http.ResponseWriter, req *http.Request) {
-	if !alreadyLoggedIn(req) {
+// DeleteGroup allows the user to delete an existing group along with all friends that the group contains.
+func DeleteGroup(res http.ResponseWriter, req *http.Request) {
+	if !userp.AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
 
-	user := getUser(res, req)
+	user := userp.GetUser(res, req)
 
 	if req.Method == http.MethodPost {
 		group := req.FormValue("group")
@@ -174,17 +180,17 @@ func deleteGroup(res http.ResponseWriter, req *http.Request) {
 
 				// identify all occurences
 				deleteList := []int{}
-				currentFriend := user.friends.head
-				for index := 0; index < user.friends.size; index++ {
+				currentFriend := user.Friends.Head
+				for index := 0; index < user.Friends.Size; index++ {
 					if currentFriend.Group == group {
 						deleteList = append(deleteList, index)
 					}
-					currentFriend = currentFriend.next
+					currentFriend = currentFriend.Next
 				}
 
 				// delete friends
 				for i, v := range deleteList {
-					user.friends.removeFriend(v - i)
+					user.Friends.RemoveFriend(v - i)
 				}
 			}()
 
@@ -194,15 +200,15 @@ func deleteGroup(res http.ResponseWriter, req *http.Request) {
 
 				// identify group
 				var index int
-				for i, v := range user.groups {
+				for i, v := range user.Groups {
 					if v == group {
 						index = i
 						break
 					}
 				}
 
-				copy(user.groups[index:], user.groups[index+1:])
-				user.groups = user.groups[:len(user.groups)-1]
+				copy(user.Groups[index:], user.Groups[index+1:])
+				user.Groups = user.Groups[:len(user.Groups)-1]
 			}()
 
 			wg.Wait()
@@ -211,5 +217,5 @@ func deleteGroup(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	tpl.ExecuteTemplate(res, "deletegroup.gohtml", user.groups)
+	data.Tpl.ExecuteTemplate(res, "deletegroup.gohtml", user.Groups)
 }

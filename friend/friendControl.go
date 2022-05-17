@@ -1,19 +1,25 @@
-package main
+// Package friend controls the functions of the friends menu.
+package friend
 
 import (
 	"net/http"
+
+	"GoSchool-Assignment4/data"
+	"GoSchool-Assignment4/search"
+	"GoSchool-Assignment4/userp"
 )
 
-func friendsControl(res http.ResponseWriter, req *http.Request) {
-	if !alreadyLoggedIn(req) {
+// FriendsControl displays the friends menu template and allows the user to sort the friends list.
+func FriendsControl(res http.ResponseWriter, req *http.Request) {
+	if !userp.AlreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
 
-	user := getUser(res, req)
+	user := userp.GetUser(res, req)
 
 	sortType := req.FormValue("sort")
-	user.friends.sortControl(sortType)
+	sortControl(user.Friends, sortType)
 
 	if req.Method == http.MethodPost {
 		friend := req.FormValue("friend")
@@ -27,7 +33,7 @@ func friendsControl(res http.ResponseWriter, req *http.Request) {
 		} else {
 
 			// check if friend exists
-			friendNode, _ := user.friends.seqSearch(friend)
+			friendNode, _ := search.SeqSearch(user.Friends, friend)
 			if friendNode == nil {
 				http.Error(res, "Friend does not exist.", http.StatusUnauthorized)
 				return
@@ -37,5 +43,5 @@ func friendsControl(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	tpl.ExecuteTemplate(res, "friends.gohtml", user.friends.makeFriendsSlice())
+	data.Tpl.ExecuteTemplate(res, "friends.gohtml", user.Friends.MakeFriendsSlice())
 }
