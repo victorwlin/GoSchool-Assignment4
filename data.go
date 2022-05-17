@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"time"
 
@@ -34,7 +33,7 @@ var users = map[string]*userProfile{
 func init() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		Error.Println("Error loading .env file")
 	}
 
 	password := os.Getenv("PASSWORD")

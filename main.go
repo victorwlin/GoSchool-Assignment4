@@ -3,15 +3,23 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+	"os"
 )
 
 var (
 	tpl         *template.Template
 	mapSessions = map[string]string{}
+
+	Info  *log.Logger
+	Error *log.Logger
 )
 
 func init() {
+	Info = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	Error = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Lmicroseconds|log.Llongfile)
+
 	tpl = template.Must(template.ParseGlob("templates/*"))
 }
 
