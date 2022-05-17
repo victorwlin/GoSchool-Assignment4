@@ -39,9 +39,10 @@ func login(res http.ResponseWriter, req *http.Request) {
 		// create session
 		id := uuid.NewV4()
 		cookie := &http.Cookie{
-			Name:  "FriendTrackerCookie",
-			Value: id.String(),
-			Path:  "/",
+			Name:     "FriendTrackerCookie",
+			Value:    id.String(),
+			Path:     "/",
+			HttpOnly: true,
 		}
 		http.SetCookie(res, cookie)
 
@@ -87,9 +88,10 @@ func signup(res http.ResponseWriter, req *http.Request) {
 			// create session
 			id := uuid.NewV4()
 			cookie := &http.Cookie{
-				Name:  "FriendTrackerCookie",
-				Value: id.String(),
-				Path:  "/",
+				Name:     "FriendTrackerCookie",
+				Value:    id.String(),
+				Path:     "/",
+				HttpOnly: true,
 			}
 			http.SetCookie(res, cookie)
 
