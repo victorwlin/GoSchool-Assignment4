@@ -32,14 +32,21 @@ func FriendsControl(res http.ResponseWriter, req *http.Request) {
 
 		} else {
 
-			// check if friend exists
-			friendNode, _ := search.SeqSearch(user.Friends, friend)
-			if friendNode == nil {
-				http.Error(res, "Friend does not exist.", http.StatusUnauthorized)
-				return
+			if user.Friends.Head != nil { // only do search if there is a friends list
+				// check if friend exists
+				friendNode, _ := search.SeqSearch(user.Friends, friend)
+				if friendNode == nil {
+					http.Error(res, "Friend does not exist.", http.StatusUnauthorized)
+					return
+				} else {
+					http.Redirect(res, req, "/search/?friend="+friend, http.StatusSeeOther)
+				}
 			} else {
-				http.Redirect(res, req, "/search/?friend="+friend, http.StatusSeeOther)
+				data.Info.Println("User tried to search for a friend in an empty friend list.")
+				http.Error(res, "No friends to search for.", http.StatusUnauthorized)
+				return
 			}
+
 		}
 	}
 
