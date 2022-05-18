@@ -76,7 +76,23 @@ func EditFriendDetails(res http.ResponseWriter, req *http.Request) {
 		}
 
 		if newLastContact != "" {
-			friendNode.LastContact.Top.Date, _ = time.Parse("2006-01-02", newLastContact)
+
+			newLastContactDate, _ := time.Parse("2006-01-02", newLastContact)
+
+			// the new date of last contact cannot be earlier than the previous date of last contact on the stack
+			if friendNode.LastContact.Size > 1 {
+				lastStackDate := friendNode.LastContact.Top.Last.Date
+
+				if newLastContactDate.Before(lastStackDate) {
+					data.Error.Printf("User %v tried to edit date of last contact so that it is earlier than the previous date of last contact.\n", user.ProfileName)
+					http.Error(res, "Date of last contact cannot be edited to have occurred prior to previous date of last contact.", http.StatusUnauthorized)
+					return
+				}
+
+				friendNode.LastContact.Top.Date = newLastContactDate
+			} else {
+				friendNode.LastContact.Top.Date = newLastContactDate
+			}
 		}
 
 		if newDesiredFreq != "" {

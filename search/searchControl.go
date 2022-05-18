@@ -33,6 +33,13 @@ func SearchControl(res http.ResponseWriter, req *http.Request) {
 		} else {
 
 			date, _ := time.Parse("2006-01-02", newLastContact)
+
+			if date.Before(user.Friends.Head.LastContact.Top.Date) {
+				data.Error.Printf("User %v tried to enter a new date of last contact that is earlier than the current date of last contact.\n", user.ProfileName)
+				http.Error(res, "New date of last contact must have happened earlier than current date of last contact.", http.StatusUnauthorized)
+				return
+			}
+
 			friendNode.LastContact.Push(date)
 
 		}
