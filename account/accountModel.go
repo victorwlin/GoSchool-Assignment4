@@ -23,7 +23,7 @@ func EditUser(res http.ResponseWriter, req *http.Request) {
 		username := req.FormValue("username")
 
 		if username == "" {
-
+			data.Error.Printf("User %v tried to edit user without filling out all required fields.\n", user.ProfileName)
 			http.Error(res, "All fields must be filled out.", http.StatusUnauthorized)
 			return
 
@@ -60,9 +60,11 @@ func EditUser(res http.ResponseWriter, req *http.Request) {
 				// delete old userProfile
 				delete(data.Users, oldName)
 
+				data.Info.Printf("User %v successfully changed their username.\n", user.ProfileName)
 				http.Redirect(res, req, "/accountmanagement/", http.StatusSeeOther)
 
 			} else {
+				data.Error.Printf("Unsuccessful edit user by %v. New username already exists.\n", username)
 				http.Error(res, "Username already exists.", http.StatusUnauthorized)
 				return
 			}
@@ -85,6 +87,8 @@ func DeleteUser(res http.ResponseWriter, req *http.Request) {
 	oldName := user.ProfileName
 
 	delete(data.Users, oldName)
+
+	data.Info.Printf("User %v successfully deleted their user profile and logged out.\n", user.ProfileName)
 
 	http.Redirect(res, req, "/logout/", http.StatusSeeOther)
 }
