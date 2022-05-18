@@ -19,6 +19,12 @@ func AddFriendToList(res http.ResponseWriter, req *http.Request) {
 
 	user := userp.GetUser(res, req)
 
+	if len(user.Groups) < 1 {
+		data.Error.Printf("User %v tried to add a friend without adding a group first.\n", user.ProfileName)
+		http.Error(res, "Cannot add friend until a group is added first.", http.StatusUnauthorized)
+		return
+	}
+
 	if req.Method == http.MethodPost {
 		friendname := req.FormValue("friendname")
 		group := req.FormValue("group")

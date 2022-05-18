@@ -23,7 +23,7 @@ func GetUser(res http.ResponseWriter, req *http.Request) (user *(data.UserProfil
 
 		user = data.Users[username]
 	}
-	data.Info.Printf("GetUser function was able to successfully retrieve user %v\n", user.ProfileName)
+
 	return user
 }
 
@@ -38,7 +38,6 @@ func AlreadyLoggedIn(req *http.Request) bool {
 	username := data.MapSessions[cookie.Value]
 	_, ok := data.Users[username]
 
-	data.Info.Printf("AlreadyLoggedIn function was able to successfully retrieve user %v\n", username)
 	return ok
 }
 
