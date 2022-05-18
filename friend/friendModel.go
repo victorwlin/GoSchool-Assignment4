@@ -33,7 +33,7 @@ func AddFriendToList(res http.ResponseWriter, req *http.Request) {
 
 		// check if fields have been filled out
 		if friendname == "" || group == "" || desiredfreq == "" || lastcontact == "" {
-
+			data.Error.Printf("User %v tried to add a friend without filling out all required fields.\n", user.ProfileName)
 			http.Error(res, "All fields must be filled out.", http.StatusUnauthorized)
 			return
 
@@ -41,6 +41,7 @@ func AddFriendToList(res http.ResponseWriter, req *http.Request) {
 
 			// check if friend exists
 			if user.Friends.DoesFriendExist(friendname) {
+				data.Error.Printf("User %v tried to add a friend who already exists.\n", user.ProfileName)
 				http.Error(res, "Friend already exists.", http.StatusUnauthorized)
 				return
 			}
@@ -51,8 +52,9 @@ func AddFriendToList(res http.ResponseWriter, req *http.Request) {
 
 			user.Friends.AddFriend(friendname, group, &data.Stack{&data.DateNode{date, nil}, 0}, desiredfreqInt)
 
-			http.Redirect(res, req, "/friends/", http.StatusSeeOther)
+			data.Info.Printf("User %v successfully added a friend %v.\n", user.ProfileName, user.Friends.Head.Name)
 
+			http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 		}
 	}
 
@@ -72,10 +74,9 @@ func AddGroup(res http.ResponseWriter, req *http.Request) {
 		group := req.FormValue("group")
 
 		if group == "" {
-
+			data.Error.Printf("User %v tried to add a group without filling out all required fields.\n", user.ProfileName)
 			http.Error(res, "All fields must be filled out.", http.StatusUnauthorized)
 			return
-
 		} else {
 
 			// check if group exists
@@ -88,10 +89,11 @@ func AddGroup(res http.ResponseWriter, req *http.Request) {
 
 			if !exists {
 				user.Groups = append(user.Groups, group)
-
+				data.Info.Printf("User %v successfully added a group %v.\n", user.ProfileName, group)
 				http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 
 			} else {
+				data.Error.Printf("User %v tried to add a group that already exists.\n", user.ProfileName)
 				http.Error(res, "Group already exists.", http.StatusUnauthorized)
 				return
 			}
@@ -117,7 +119,7 @@ func EditExistingGroup(res http.ResponseWriter, req *http.Request) {
 		newgroup := req.FormValue("newgroup")
 
 		if group == "" || newgroup == "" {
-
+			data.Error.Printf("User %v tried to edit a group without filling out all required fields.\n", user.ProfileName)
 			http.Error(res, "All fields must be filled out.", http.StatusUnauthorized)
 			return
 
@@ -143,6 +145,7 @@ func EditExistingGroup(res http.ResponseWriter, req *http.Request) {
 						currentFriend = currentFriend.Next
 					}
 				}
+				data.Info.Printf("User %v successfully edited all friends with a new group %v.\n", user.ProfileName, group)
 			}()
 
 			// change group in the group slice
@@ -154,6 +157,7 @@ func EditExistingGroup(res http.ResponseWriter, req *http.Request) {
 						user.Groups[i] = newgroup
 					}
 				}
+				data.Info.Printf("User %v successfully edited a group %v in the group slice.\n", user.ProfileName, group)
 			}()
 
 			wg.Wait()
@@ -185,6 +189,7 @@ func DeleteGroup(res http.ResponseWriter, req *http.Request) {
 		group := req.FormValue("group")
 
 		if group == "" {
+			data.Error.Printf("User %v tried to delete a group without filling out all required fields.\n", user.ProfileName)
 			http.Error(res, "All fields must be filled out.", http.StatusUnauthorized)
 			return
 		} else {
@@ -210,6 +215,7 @@ func DeleteGroup(res http.ResponseWriter, req *http.Request) {
 				for i, v := range deleteList {
 					user.Friends.RemoveFriend(v - i)
 				}
+				data.Info.Printf("User %v successfully deleted all friends associated with group %v.\n", user.ProfileName, group)
 			}()
 
 			// delete group from group slice
@@ -227,6 +233,7 @@ func DeleteGroup(res http.ResponseWriter, req *http.Request) {
 
 				copy(user.Groups[index:], user.Groups[index+1:])
 				user.Groups = user.Groups[:len(user.Groups)-1]
+				data.Info.Printf("User %v successfully deleted a group %v in the group slice.\n", user.ProfileName, group)
 			}()
 
 			wg.Wait()

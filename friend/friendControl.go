@@ -26,7 +26,7 @@ func FriendsControl(res http.ResponseWriter, req *http.Request) {
 
 		// check if fields have been filled out
 		if friend == "" {
-
+			data.Error.Printf("User %v submitted a blank search.\n", user.ProfileName)
 			http.Error(res, "Search field must not be blank.", http.StatusUnauthorized)
 			return
 
@@ -36,6 +36,7 @@ func FriendsControl(res http.ResponseWriter, req *http.Request) {
 				// check if friend exists
 				friendNode, _ := search.SeqSearch(user.Friends, friend)
 				if friendNode == nil {
+					data.Error.Printf("User %v searched for a friend who does not exist.\n", user.ProfileName)
 					http.Error(res, "Friend does not exist.", http.StatusUnauthorized)
 					return
 				} else {

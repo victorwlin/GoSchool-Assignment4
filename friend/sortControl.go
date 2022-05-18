@@ -90,5 +90,5 @@ func sortControl(f *data.FriendList, sortType string) {
 			return
 		}
 	}
-
+	data.Info.Printf("User successfully sorted their friend list by %v.\n", sortType)
 }

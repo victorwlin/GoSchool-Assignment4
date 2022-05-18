@@ -64,7 +64,7 @@ func EditFriendDetails(res http.ResponseWriter, req *http.Request) {
 
 		if newFriendName != "" {
 			if user.Friends.DoesFriendExist(newFriendName) {
-				http.Error(res, "User does not exist.", http.StatusUnauthorized)
+				http.Error(res, "Friend already exists.", http.StatusUnauthorized)
 				return
 			}
 
