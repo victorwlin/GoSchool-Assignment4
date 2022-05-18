@@ -3,8 +3,6 @@ package search
 import (
 	"GoSchool-Assignment4/data"
 	"GoSchool-Assignment4/userp"
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -19,7 +17,7 @@ func SeqSearch(f *data.FriendList, friendName string) (friend *data.Friend, i in
 		if currentFriend.Name == friendName {
 			return currentFriend, i
 		} else if currentFriend.Next == nil {
-			fmt.Println(errors.New("Friend not found."))
+			data.Error.Println("Unsuccessful search. Friend not found.")
 			return currentFriend.Next, -1
 		} else {
 			currentFriend = currentFriend.Next
@@ -41,6 +39,7 @@ func DeleteFriend(res http.ResponseWriter, req *http.Request) {
 	_, i := SeqSearch(user.Friends, friend)
 	user.Friends.RemoveFriend(i)
 
+	data.Info.Println("A user successfully deleted a friend.")
 	http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 }
 
@@ -64,6 +63,7 @@ func EditFriendDetails(res http.ResponseWriter, req *http.Request) {
 
 		if newFriendName != "" {
 			if user.Friends.DoesFriendExist(newFriendName) {
+				data.Error.Printf("Unsuccessful EditFriendDetails by %v. User chose a friend name that already exists.\n", user.ProfileName)
 				http.Error(res, "Friend already exists.", http.StatusUnauthorized)
 				return
 			}
@@ -98,6 +98,8 @@ func EditFriendDetails(res http.ResponseWriter, req *http.Request) {
 		if newDesiredFreq != "" {
 			friendNode.DesiredFreqOfContact, _ = strconv.Atoi(newDesiredFreq)
 		}
+
+		data.Info.Printf("User %v successfully submitted a form to edit friend details.\n", user.ProfileName)
 
 		http.Redirect(res, req, "/search/?friend="+friendNode.Name, http.StatusSeeOther)
 	}

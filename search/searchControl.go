@@ -26,7 +26,7 @@ func SearchControl(res http.ResponseWriter, req *http.Request) {
 
 		// check if fields have been filled out
 		if newLastContact == "" {
-
+			data.Error.Printf("User %v submitted a blank search.\n", user.ProfileName)
 			http.Error(res, "Field must not be blank.", http.StatusUnauthorized)
 			return
 
@@ -41,7 +41,7 @@ func SearchControl(res http.ResponseWriter, req *http.Request) {
 			}
 
 			friendNode.LastContact.Push(date)
-
+			data.Info.Printf("User %v successfully added a date of last contact to one of their friends.\n", user.ProfileName)
 		}
 	}
 
