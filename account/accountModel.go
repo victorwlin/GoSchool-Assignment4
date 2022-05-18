@@ -5,6 +5,7 @@ import (
 	"GoSchool-Assignment4/userp"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // EditUser allows the user to edit their username.
@@ -27,6 +28,15 @@ func EditUser(res http.ResponseWriter, req *http.Request) {
 			return
 
 		} else {
+
+			// Check if username contains spaces. Username should not contain spaces.
+			if strings.ContainsAny(username, " ") {
+				data.Error.Printf("Unsuccessful edit user. User tried to enter new username with spaces: %v\n", username)
+				http.Error(res, "Username cannot contain spaces.", http.StatusForbidden)
+			}
+
+			// Username should not be case sensitive, so before working with input, convert to lower case.
+			username = strings.ToLower(username)
 
 			// check if username exists
 			exists := false
