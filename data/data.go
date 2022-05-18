@@ -109,4 +109,6 @@ func init() {
 	Users["tokey"].Friends.AddFriend("Thanh", "College", &thanhStack, 365)
 	Users["tokey"].Friends.AddFriend("Lynda", "Work", &lyndaStack, 90)
 	Users["tokey"].Friends.AddFriend("Louie", "Work", &louieStack, 270)
+
+	Info.Println("All data initialized successfully.")
 }
