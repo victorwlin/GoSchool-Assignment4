@@ -120,20 +120,24 @@ func (f *FriendList) MakeFriendsSlice() (friendsSlice []friendRender) {
 
 // DoesFriendExist checks the list to see if the friend exists.
 func (f *FriendList) DoesFriendExist(friendname string) bool {
-	currentFriend := f.Head
-	for {
-		if currentFriend.Name == friendname {
-			return true
+	if f.Head == nil {
+		return false
+	} else {
+		currentFriend := f.Head
+		for {
+			if currentFriend.Name == friendname {
+				return true
+			}
+
+			if currentFriend.Next == nil {
+				break
+			} else {
+				currentFriend = currentFriend.Next
+			}
 		}
 
-		if currentFriend.Next == nil {
-			break
-		} else {
-			currentFriend = currentFriend.Next
-		}
+		return false
 	}
-
-	return false
 }
 
 // MakeSearchStruct returns a struct that allows the search template to display friend information for one friend.
