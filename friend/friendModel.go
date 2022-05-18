@@ -106,6 +106,12 @@ func AddGroup(res http.ResponseWriter, req *http.Request) {
 func EditExistingGroup(res http.ResponseWriter, req *http.Request) {
 	user := userp.GetUser(res, req)
 
+	if len(user.Groups) < 1 {
+		data.Error.Printf("User %v tried to edit a group without adding a group first.\n", user.ProfileName)
+		http.Error(res, "Cannot edit group until a group is added first.", http.StatusUnauthorized)
+		return
+	}
+
 	if req.Method == http.MethodPost {
 		group := req.FormValue("group")
 		newgroup := req.FormValue("newgroup")
@@ -168,6 +174,12 @@ func DeleteGroup(res http.ResponseWriter, req *http.Request) {
 	}
 
 	user := userp.GetUser(res, req)
+
+	if len(user.Groups) < 1 {
+		data.Error.Printf("User %v tried to delete a group without adding a group first.\n", user.ProfileName)
+		http.Error(res, "Cannot delete a group until a group is added first.", http.StatusUnauthorized)
+		return
+	}
 
 	if req.Method == http.MethodPost {
 		group := req.FormValue("group")
