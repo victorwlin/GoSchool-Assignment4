@@ -13,6 +13,7 @@ func GetUser(res http.ResponseWriter, req *http.Request) (user *(data.UserProfil
 
 	// if cookie doesn't exist, redirect to login
 	if err != nil {
+		data.Error.Println("GetUser function was unable to find cookie and redirected user to login.")
 		http.Redirect(res, req, "/", http.StatusSeeOther)
 		return
 	}
@@ -22,7 +23,7 @@ func GetUser(res http.ResponseWriter, req *http.Request) (user *(data.UserProfil
 
 		user = data.Users[username]
 	}
-
+	data.Info.Printf("GetUser function was able to successfully retrieve user %v\n", user.ProfileName)
 	return user
 }
 
@@ -30,12 +31,14 @@ func GetUser(res http.ResponseWriter, req *http.Request) (user *(data.UserProfil
 func AlreadyLoggedIn(req *http.Request) bool {
 	cookie, err := req.Cookie("FriendTrackerCookie")
 	if err != nil {
+		data.Error.Println("AlreadyLoggedIn function was unable to find cookie.")
 		return false
 	}
 
 	username := data.MapSessions[cookie.Value]
 	_, ok := data.Users[username]
 
+	data.Info.Printf("AlreadyLoggedIn function was able to successfully retrieve user %v\n", username)
 	return ok
 }
 
@@ -44,6 +47,7 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 	cookie, _ := req.Cookie("FriendTrackerCookie")
 
 	// delete session
+	data.Info.Printf("Logout function successfully logged out user %v and deleted cookie.\n", data.MapSessions[cookie.Value])
 	delete(data.MapSessions, cookie.Value)
 
 	// remove cookie

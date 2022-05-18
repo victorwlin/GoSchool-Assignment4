@@ -29,6 +29,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		// check if user exists using entered username
 		user, ok := data.Users[username]
 		if !ok {
+			data.Error.Printf("Unsuccessful login. User entered username %v which does not exist.\n", username)
 			http.Error(res, "User does not exist.", http.StatusUnauthorized)
 			return
 		}
@@ -36,6 +37,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		// check if password matches our records
 		err := bcrypt.CompareHashAndPassword(user.Password, []byte(password))
 		if err != nil {
+			data.Error.Printf("Unsuccessful login. Username %v and password do not match.\n", username)
 			http.Error(res, "Username and password do not match.", http.StatusForbidden)
 			return
 		}
@@ -51,6 +53,8 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		http.SetCookie(res, cookie)
 
 		data.MapSessions[cookie.Value] = username
+
+		data.Info.Printf("user %v logged in.\n", username)
 
 		http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 		return
@@ -72,12 +76,14 @@ func Signup(res http.ResponseWriter, req *http.Request) {
 		password := req.FormValue("password")
 
 		if username == "" || password == "" {
+			data.Error.Println("Unsuccessful signup. Either username or password fields were left blank.")
 			http.Error(res, "Both fields must contain values.", http.StatusForbidden)
 			return
 		} else {
 
 			// Check if username contains spaces. Username should not contain spaces.
 			if strings.ContainsAny(username, " ") {
+				data.Error.Printf("Unsuccessful signup. User tried to enter username with spaces: %v\n", username)
 				http.Error(res, "Username cannot contain spaces.", http.StatusForbidden)
 			}
 
@@ -86,6 +92,7 @@ func Signup(res http.ResponseWriter, req *http.Request) {
 
 			// check if username already exists
 			if _, ok := data.Users[username]; ok {
+				data.Error.Printf("Unsuccessful signup. Username already taken: %v\n", username)
 				http.Error(res, "Username already taken.", http.StatusForbidden)
 				return
 			}
@@ -116,6 +123,8 @@ func Signup(res http.ResponseWriter, req *http.Request) {
 				Groups:      []string{},
 				Friends:     &data.FriendList{nil, 0},
 			}
+
+			data.Info.Printf("user %v signed up.\n", username)
 
 			http.Redirect(res, req, "/friends/", http.StatusSeeOther)
 			return

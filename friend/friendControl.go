@@ -42,7 +42,7 @@ func FriendsControl(res http.ResponseWriter, req *http.Request) {
 					http.Redirect(res, req, "/search/?friend="+friend, http.StatusSeeOther)
 				}
 			} else {
-				data.Info.Println("User tried to search for a friend in an empty friend list.")
+				data.Error.Println("User tried to search for a friend in an empty friend list.")
 				http.Error(res, "No friends to search for.", http.StatusUnauthorized)
 				return
 			}
