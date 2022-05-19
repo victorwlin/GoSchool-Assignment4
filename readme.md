@@ -141,4 +141,10 @@ This assignment is for GoSchool module Go In Action 2. It is a continuation of e
 	- search - This package contains the search menu and all associated functions.
 - Documentation - All packages and exported functions have been given comment descriptions with full sentences in accordance with convention.
 
+<p align="center">
+	<img src="architecture.png" />
+</p>
+
+<!---
 ![App Architecture](architecture.png)
+--->
