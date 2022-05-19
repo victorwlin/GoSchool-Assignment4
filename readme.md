@@ -1,5 +1,7 @@
 Live: https://guarded-wildwood-57389.herokuapp.com/
 
+This assignment is for GoSchool module Go In Action 2. It is a continuation of earlier assignments and is focused on security, idiomatic Go, and documentation.
+
 ### Security
 **Validation**  
 - Username - To avoid confusion, I have decided that usernames should be all lowercase and contain no spaces. If the user tries to create a username on the signup or edit user pages with spaces, they will receive an error. Also all usernames will now automatically be converted to lowercase before further being processed by the app. This functionality has also been added to the login page.
