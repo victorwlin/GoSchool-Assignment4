@@ -140,3 +140,5 @@ This assignment is for GoSchool module Go In Action 2. It is a continuation of e
 	- account - This package contains the account management menu and all associated functions.
 	- search - This package contains the search menu and all associated functions.
 - Documentation - All packages and exported functions have been given comment descriptions with full sentences in accordance with convention.
+
+![App Architecture](architecture.png)

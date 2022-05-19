@@ -2,3 +2,5 @@
 *.json
 node_modules
 *.pem
+*.pdf
+*.docx
